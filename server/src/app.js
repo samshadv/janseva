@@ -47,7 +47,12 @@ export function createApp() {
   app.use(
     cors({
       origin(origin, callback) {
-        if (!origin || origin === config.CLIENT_ORIGIN) {
+        if (
+          !origin ||
+          origin === config.CLIENT_ORIGIN ||
+          origin.endsWith(".vercel.app") ||
+          (process.env.VERCEL_URL && origin.includes(process.env.VERCEL_URL))
+        ) {
           return callback(null, true);
         }
         return callback(new Error("Origin not allowed"));
