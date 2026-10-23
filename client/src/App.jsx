@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  ArrowRight, ArrowUpRight, BadgeCheck, BookOpen, Check, ChevronDown,
-  CircleHelp, ClipboardCheck, FileText, Globe2, Landmark, LoaderCircle,
-  MapPin, Menu, MessageCircle, Search, ShieldCheck, Sparkles, UploadCloud,
-  X, Copy, CheckCircle2, AlertTriangle, History, Zap, Lock,
-  Printer, PhoneCall, Mic, MicOff
+  ArrowRight, ArrowUpRight, BookOpen, Check, ChevronDown,
+  ClipboardCheck, FileText, Globe2, Landmark, LoaderCircle,
+  MapPin, Menu, MessageCircle, ShieldCheck, Sparkles,
+  X, CheckCircle2, AlertTriangle, Lock,
+  PhoneCall, Mic, MicOff
 } from "lucide-react";
 import { ConversationPanel } from "./components/ConversationPanel";
-import { VerifiedBadge } from "./components/VerifiedBadge";
 import { EligibilityCalculator } from "./components/EligibilityCalculator";
 import { AccessibilityBar } from "./components/AccessibilityBar";
 import { ConsentBanner } from "./components/ConsentBanner";
@@ -326,6 +325,8 @@ export default function App() {
                         type="button"
                         className={`voice-mic-btn ${isListening ? "active-listening" : ""}`}
                         onClick={toggleSpeechRecognition}
+                        aria-label={isListening ? "Listening active. Click to finish recording question" : "Click to speak your question using microphone"}
+                        aria-pressed={isListening}
                         title={isListening ? "Listening... Click to finish" : "Click to speak your question in Hindi or English"}
                       >
                         {isListening ? <MicOff size={15} /> : <Mic size={15} />}
@@ -334,17 +335,22 @@ export default function App() {
                       </button>
                       <span className="char-count">{message.length}/6000 chars · PII Shield on</span>
                     </div>
-                    <button className="primary-button" disabled={loading || message.trim().length < 8} onClick={() => ask()}>
+                    <button
+                      className="primary-button"
+                      disabled={loading || message.trim().length < 8}
+                      onClick={() => ask()}
+                      aria-label="Generate structured citizen action plan"
+                    >
                       {loading ? <><LoaderCircle className="spin" size={17}/> Working...</> : <>Make my action plan <ArrowRight size={17}/></>}
                     </button>
                   </div>
                   <div className="settings-row">
-                    <label><MapPin size={15}/><span>State / UT</span><select value={stateName} onChange={(e) => setStateName(e.target.value)}>{INDIAN_STATES_AND_UTS.map(s=><option key={s}>{s}</option>)}</select><ChevronDown size={13}/></label>
-                    <label><Globe2 size={15}/><span>Language</span><select value={language} onChange={(e) => setLanguage(e.target.value)}>{SUPPORTED_LANGUAGES.map(l=><option key={l.code} value={l.code}>{l.name} ({l.nativeName})</option>)}</select><ChevronDown size={13}/></label>
+                    <label htmlFor="state-select"><MapPin size={15}/><span>State / UT</span><select id="state-select" aria-label="Select your state or union territory" value={stateName} onChange={(e) => setStateName(e.target.value)}>{INDIAN_STATES_AND_UTS.map(s=><option key={s}>{s}</option>)}</select><ChevronDown size={13}/></label>
+                    <label htmlFor="language-select"><Globe2 size={15}/><span>Language</span><select id="language-select" aria-label="Select preferred output language" value={language} onChange={(e) => setLanguage(e.target.value)}>{SUPPORTED_LANGUAGES.map(l=><option key={l.code} value={l.code}>{l.name} ({l.nativeName})</option>)}</select><ChevronDown size={13}/></label>
                   </div>
                 </div>
 
-                {error && <div className="error-banner"><AlertTriangle size={17}/>{error}</div>}
+                {error && <div className="error-banner" role="alert"><AlertTriangle size={17}/>{error}</div>}
                 {!result && !loading && <div className="examples-area"><div className="examples-title"><span>NEED A STARTING POINT?</span><span>Try an example</span></div><div className="example-list">{examples.map(ex=><button key={ex.title} onClick={() => { setMessage(ex.text); setError(""); }}><span className="mini-emoji">{ex.icon}</span><span>{ex.title}</span><ArrowUpRight size={15}/></button>)}</div></div>}
                 {loading && <div className="loading-card"><div className="loading-orb"><Sparkles size={24}/></div><h3>Making sense of your request...</h3><p>Organizing your question into steps and details to verify.</p><div className="loading-bar"><span/></div></div>}
                 

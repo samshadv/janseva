@@ -37,6 +37,9 @@ jobs:
           GEMINI_API_KEY: mock-ci-key
           CLIENT_ORIGIN: http://localhost:5173
 
+      - name: Run client test suite (Vitest)
+        run: npm --prefix client test
+
       - name: Run dependency security audit
         run: npm audit --audit-level=high || true
 

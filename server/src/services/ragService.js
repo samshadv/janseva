@@ -6,6 +6,10 @@ import officialSchemes from "../db/seeds/officialSchemes.json" with { type: "jso
 /**
  * Searches official schemes using vector embedding when Supabase pgvector is available,
  * and falls back to fast catalog matching when database is unconfigured.
+ *
+ * @param {string} query - The citizen's free-form question or description.
+ * @param {string} [state="All"] - The state/UT to filter schemes for.
+ * @returns {Promise<Array<Object>>} List of matched official scheme objects.
  */
 export async function retrieveRelevantSchemes(query, state = "All") {
   if (!query || typeof query !== "string") return [];
@@ -71,6 +75,9 @@ export async function retrieveRelevantSchemes(query, state = "All") {
 
 /**
  * Formats retrieved schemes into a grounded prompt context string for Gemini.
+ *
+ * @param {Array<Object>} schemes - Array of retrieved official scheme objects.
+ * @returns {string} Formatted markdown prompt section containing verified ground truth.
  */
 export function formatSchemesForPrompt(schemes) {
   if (!Array.isArray(schemes) || schemes.length === 0) {

@@ -40,6 +40,13 @@ export function createApp() {
     })
   );
 
+  // Additional Statutory Security Headers (Permissions-Policy for sensors & mic)
+  app.use((_req, res, next) => {
+    res.setHeader("Permissions-Policy", "camera=(), microphone=(self), geolocation=()");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    next();
+  });
+
   // Response Compression: Gzip & Deflate
   app.use(compression());
 

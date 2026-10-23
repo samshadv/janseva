@@ -12,7 +12,15 @@ export const INCOME_BRACKET_MAP = {
 };
 
 /**
- * Match citizen profile with official schemes based on criteria.
+ * Evaluates citizen demographic criteria against official scheme eligibility rules.
+ * Computes deterministic compatibility scores and explains qualifying criteria.
+ *
+ * @param {Object} criteria
+ * @param {string} [criteria.state="All"] - Citizen's state or UT.
+ * @param {number|string} [criteria.age] - Citizen's age in years.
+ * @param {string} [criteria.occupation="Any"] - Citizen's employment category.
+ * @param {string} [criteria.incomeBracket="UPTO_5L"] - Annual household income ceiling key.
+ * @returns {Array<Object>} Sorted array of matching schemes with percentage match and reasons.
  */
 export function matchCitizenEligibility({ state, age, occupation, incomeBracket }) {
   const citizenAge = Number(age) || null;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { Clock, MessageSquare, X, ChevronRight, RefreshCw, FileText } from "lucide-react";
+import { Clock, MessageSquare, X, ChevronRight, RefreshCw } from "lucide-react";
 import { API_BASE } from "../lib/api";
 
 export function ConversationPanel({ isOpen, onClose, onSelectConversation }) {

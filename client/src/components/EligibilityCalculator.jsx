@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, ArrowRight, CheckCircle2, FileText, ExternalLink, Filter, HelpCircle } from "lucide-react";
+import { Sparkles, ArrowRight, CheckCircle2, FileText, ExternalLink, Filter } from "lucide-react";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { API_BASE } from "../lib/api";
 

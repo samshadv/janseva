@@ -82,6 +82,14 @@ const responseSchema = {
   ],
 };
 
+/**
+ * Wraps an external API promise with an enforced timeout cutoff.
+ *
+ * @template T
+ * @param {Promise<T>} promise - The asynchronous promise to monitor.
+ * @param {number} ms - Timeout threshold in milliseconds.
+ * @returns {Promise<T>} Resolves with the promise result or rejects on timeout.
+ */
 function withTimeout(promise, ms) {
   let timer;
   const timeoutPromise = new Promise((_, reject) => {
@@ -90,6 +98,16 @@ function withTimeout(promise, ms) {
   return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
 }
 
+/**
+ * Deterministic scheme-grounded fallback generator providing zero-failure offline responses.
+ *
+ * @param {Object} params
+ * @param {string} params.message - The citizen's query.
+ * @param {string} params.state - State/UT of residence.
+ * @param {string} params.language - Output language requested.
+ * @param {Array<Object>} params.matchedSchemes - Schemas retrieved from the local seed registry.
+ * @returns {Object} Structured guidance conforming to outputSchema.
+ */
 function generateSchemeGroundedFallback({ message, state, language, matchedSchemes }) {
   const topSchemes = (matchedSchemes && matchedSchemes.length > 0) ? matchedSchemes.slice(0, 2) : [];
   const primary = topSchemes[0] || {
@@ -179,6 +197,17 @@ function generateSchemeGroundedFallback({ message, state, language, matchedSchem
   };
 }
 
+/**
+ * Primary intelligence orchestrator.
+ * Grounded in verified scheme registries with dual-tier Gemini cloud models and deterministic fallback.
+ *
+ * @param {Object} params
+ * @param {string} params.message - The citizen's free-text inquiry.
+ * @param {string} params.state - Citizen's state or union territory.
+ * @param {string} params.language - Language for generated guidance.
+ * @param {string} [requestId] - Unique request correlation ID for distributed tracing.
+ * @returns {Promise<Object>} Formatted, sanitized citizen action plan.
+ */
 export async function getAssistance({ message, state, language }, requestId) {
   logger.debug({ requestId, state, language }, "Initiating grounded Gemini request");
 
