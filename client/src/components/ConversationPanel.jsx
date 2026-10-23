@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Clock, MessageSquare, X, ChevronRight, RefreshCw, FileText } from "lucide-react";
+import { API_BASE } from "../lib/api";
 
 export function ConversationPanel({ isOpen, onClose, onSelectConversation }) {
   const { getToken, isAuthenticated } = useAuth();
@@ -15,7 +16,7 @@ export function ConversationPanel({ isOpen, onClose, onSelectConversation }) {
 
     try {
       const token = getToken();
-      const res = await fetch("/api/conversations?limit=30", {
+      const res = await fetch(`${API_BASE}/api/conversations?limit=30`, {
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
         },
@@ -118,7 +119,7 @@ export function ConversationPanel({ isOpen, onClose, onSelectConversation }) {
                   onClick={async () => {
                     const token = getToken();
                     try {
-                      const res = await fetch(`/api/conversations/${item.id}`, {
+                      const res = await fetch(`${API_BASE}/api/conversations/${item.id}`, {
                         headers: {
                           ...(token && { Authorization: `Bearer ${token}` }),
                         },

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { X, ShieldCheck, Download, Trash2, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { API_BASE } from "../lib/api";
 
 export function PrivacyModal({ onClose }) {
   const { isAuthenticated, getToken, signOut } = useAuth();
@@ -27,7 +28,7 @@ export function PrivacyModal({ onClose }) {
 
     try {
       const token = getToken();
-      const res = await fetch("/api/me/export", {
+      const res = await fetch(`${API_BASE}/api/me/export`, {
         headers: { ...(token && { Authorization: `Bearer ${token}` }) },
       });
 
@@ -67,7 +68,7 @@ export function PrivacyModal({ onClose }) {
 
     try {
       const token = getToken();
-      const res = await fetch("/api/me", {
+      const res = await fetch(`${API_BASE}/api/me`, {
         method: "DELETE",
         headers: { ...(token && { Authorization: `Bearer ${token}` }) },
       });

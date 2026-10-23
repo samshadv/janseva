@@ -15,6 +15,7 @@ import { PrivacyModal } from "./components/PrivacyModal";
 import { InteractivePlan } from "./components/InteractivePlan";
 import { detectClientPII } from "./lib/piiMasker";
 import { SUPPORTED_LANGUAGES } from "./lib/languages";
+import { API_BASE } from "./lib/api";
 
 const QUICK_PILLS = [
   { icon: "🎓", label: "Scholarships", query: "I am a college student. How can I apply for post matric scholarship and prepare documents?" },
@@ -164,7 +165,7 @@ export default function App() {
     setLoading(true); setError(""); setResult(null); setActiveTab("Ask JanSetu");
     setAnnouncement("Contacting JanSetu guidance engine. Generating structured action plan. Please wait.");
     try {
-      const response = await fetch("/api/assist", {
+      const response = await fetch(`${API_BASE}/api/assist`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

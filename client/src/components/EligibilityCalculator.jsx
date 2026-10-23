@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Sparkles, ArrowRight, CheckCircle2, FileText, ExternalLink, Filter, HelpCircle } from "lucide-react";
 import { VerifiedBadge } from "./VerifiedBadge";
+import { API_BASE } from "../lib/api";
 
 const OCCUPATION_OPTIONS = [
   "Any",
@@ -35,7 +36,7 @@ export function EligibilityCalculator({ states, onSelectScheme }) {
     setError("");
 
     try {
-      const res = await fetch("/api/schemes/match", {
+      const res = await fetch(`${API_BASE}/api/schemes/match`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
