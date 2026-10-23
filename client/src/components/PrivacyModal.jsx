@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { X, ShieldCheck, Download, Trash2, AlertTriangle, CheckCircle2 } from "lucide-react";
 
@@ -7,6 +7,14 @@ export function PrivacyModal({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   async function handleExportData() {
     if (!isAuthenticated) {

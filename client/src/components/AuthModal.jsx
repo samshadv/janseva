@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { X, Lock, Mail, UserCheck, AlertCircle, Sparkles } from "lucide-react";
 
@@ -10,6 +10,14 @@ export function AuthModal({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   async function handleSubmit(e) {
     e.preventDefault();

@@ -40,6 +40,15 @@ export function ConversationPanel({ isOpen, onClose, onSelectConversation }) {
     }
   }, [isOpen, isAuthenticated]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleKeyDown(e) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (

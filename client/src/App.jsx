@@ -3,7 +3,8 @@ import {
   ArrowRight, ArrowUpRight, BadgeCheck, BookOpen, Check, ChevronDown,
   CircleHelp, ClipboardCheck, FileText, Globe2, Landmark, LoaderCircle,
   MapPin, Menu, MessageCircle, Search, ShieldCheck, Sparkles, UploadCloud,
-  X, Copy, CheckCircle2, AlertTriangle, User, History, Zap, Lock
+  X, Copy, CheckCircle2, AlertTriangle, User, History, Zap, Lock,
+  Printer, PhoneCall
 } from "lucide-react";
 import { useAuth } from "./contexts/AuthContext";
 import { AuthModal } from "./components/AuthModal";
@@ -83,6 +84,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("Ask JanSetu");
   const [copied, setCopied] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
 
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
@@ -112,6 +114,7 @@ export default function App() {
     }
     setMessage(prompt);
     setLoading(true); setError(""); setResult(null); setActiveTab("Ask JanSetu");
+    setAnnouncement("Contacting JanSetu guidance engine. Generating structured action plan. Please wait.");
     try {
       const token = getToken();
       const response = await fetch("/api/assist", {
@@ -125,8 +128,10 @@ export default function App() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Something went wrong.");
       setResult(data);
+      setAnnouncement(`Action plan for ${data.serviceCategory || "requested service"} successfully generated with ${data.steps?.length || 0} clear steps.`);
     } catch (e) {
       setError(e.message || "Could not reach JanSetu. Check that the backend is running.");
+      setAnnouncement("Failed to generate action plan: " + (e.message || "Network error."));
     } finally { setLoading(false); }
   }
 
@@ -156,6 +161,8 @@ export default function App() {
   const nav = ["Ask JanSetu", "Explore services", "How it works"];
   return (
     <div className="app-shell">
+      <a href="#main-content" className="skip-to-content">Skip to main content</a>
+      <div className="sr-only" role="status" aria-live="polite">{announcement}</div>
       <AccessibilityBar />
 
       <header className="topbar">
@@ -189,7 +196,7 @@ export default function App() {
         </div>
       </header>
 
-      <main>
+      <main id="main-content" tabIndex="-1">
         {activeTab === "Explore services" ? (
           <section className="explore-page">
             <EligibilityCalculator
@@ -280,12 +287,15 @@ export default function App() {
                       <div className="eyebrow"><BadgeCheck size={14}/> YOUR ACTION PLAN</div>
                       <h2>{result.serviceCategory}</h2>
                     </div>
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <div className="result-actions" style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
                       {result.fromCache && (
                         <span className="ai-chip" title="Retrieved instantly from verified cache">
                           <Zap size={13} /> Instant Verified
                         </span>
                       )}
+                      <button className="outline-button print-btn" onClick={() => window.print()} title="Print or save A4 action plan">
+                        <Printer size={15}/> Print / Save A4
+                      </button>
                       <button className="outline-button" onClick={copyPlan}>{copied ? <Check size={15}/> : <Copy size={15}/>} {copied ? "Copied" : "Copy plan"}</button>
                     </div>
                   </div>
@@ -314,6 +324,27 @@ export default function App() {
               </div>
               <aside className="side-column">
                 <div className="side-card help-card"><div className="side-icon"><MessageCircle size={20}/></div><h3>Small question.<br/>Big difference.</h3><p>You don't need to know the official terminology. Just explain what you're trying to do.</p><div className="side-divider"/><div className="side-stat"><span>01</span><p><b>Describe</b><small>Tell us your situation</small></p></div><div className="side-stat"><span>02</span><p><b>Understand</b><small>Get plain-language guidance</small></p></div><div className="side-stat"><span>03</span><p><b>Take action</b><small>Know what to verify next</small></p></div></div>
+                
+                <div className="side-card helpline-card">
+                  <div className="safety-head"><PhoneCall size={18}/><b>National Helplines</b></div>
+                  <p className="helpline-intro">Official citizen emergency & assistance (24x7 / Toll-free):</p>
+                  <ul className="helpline-list">
+                    <li><span className="helpline-badge">112</span> <span>National Emergency (Police, Fire, Ambulance)</span></li>
+                    <li><span className="helpline-badge">1930</span> <span>Cyber Financial Fraud / Cybercrime</span></li>
+                    <li><span className="helpline-badge">14555</span> <span>Ayushman Bharat Health Protection</span></li>
+                    <li><span className="helpline-badge">181</span> <span>Women in Distress / Safety</span></li>
+                    <li><span className="helpline-badge">1915</span> <span>National Consumer Grievance Helpline</span></li>
+                  </ul>
+                  <div className="side-divider"/>
+                  <div className="grievance-box">
+                    <span className="grievance-label">Central Grievance Redressal</span>
+                    <p>File or track official grievances with any central ministry or department:</p>
+                    <a href="https://pgportal.gov.in" target="_blank" rel="noreferrer noopener" className="cpgrams-link">
+                      Visit CPGRAMS (pgportal.gov.in) <ArrowUpRight size={13}/>
+                    </a>
+                  </div>
+                </div>
+
                 <div className="side-card safety-card"><div className="safety-head"><ShieldCheck size={20}/><b>Your safety matters</b></div><p>JanSetu will never need your password, OTP, Aadhaar number, PAN or bank PIN to explain a process.</p><a href="https://www.india.gov.in/" target="_blank" rel="noreferrer noopener">Visit India.gov.in <ArrowUpRight size={14}/></a></div>
                 <div className="side-foot"><BookOpen size={16}/><span>Guidance is a starting point, not an official decision.</span></div>
               </aside>
