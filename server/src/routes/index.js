@@ -5,6 +5,7 @@ import { authRouter } from "./auth.js";
 import { conversationsRouter } from "./conversations.js";
 import { schemesRouter } from "./schemes.js";
 import { metricsRouter } from "./metrics.js";
+import { docsRouter } from "./docs.js";
 
 export const apiRouter = Router();
 
@@ -14,3 +15,5 @@ apiRouter.use("/", authRouter);
 apiRouter.use("/conversations", conversationsRouter);
 apiRouter.use("/schemes", schemesRouter);
 apiRouter.use("/metrics", metricsRouter);
+apiRouter.use("/docs", docsRouter);
+
