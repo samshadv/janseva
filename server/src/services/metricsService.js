@@ -32,3 +32,17 @@ export const activeRequestsGauge = new client.Gauge({
   help: "Number of active requests currently being processed",
   registers: [register],
 });
+
+// Query Cache Hits Counter
+export const cacheHitsTotal = new client.Counter({
+  name: "jansetu_cache_hits_total",
+  help: "Total number of queries served directly from Redis cache",
+  registers: [register],
+});
+
+// Query Cache Misses Counter
+export const cacheMissesTotal = new client.Counter({
+  name: "jansetu_cache_misses_total",
+  help: "Total number of queries resulting in a cache miss and LLM call",
+  registers: [register],
+});
