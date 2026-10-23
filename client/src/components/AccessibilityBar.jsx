@@ -15,28 +15,28 @@ export function AccessibilityBar() {
         <div className="text-size-controls" role="group" aria-label="Text Size Adjustment">
           <button
             type="button"
-            className={`font-btn ${fontSize === "normal" ? "active" : ""}`}
-            onClick={() => setFontSize("normal")}
-            title="Standard Font Size"
-            aria-label="Standard Font Size"
+            className={`font-btn ${fontSize === "small" ? "active" : ""}`}
+            onClick={() => setFontSize("small")}
+            title="Decrease Font Size (A-)"
+            aria-label="Decrease Font Size (A-)"
           >
             A-
           </button>
           <button
             type="button"
-            className={`font-btn ${fontSize === "large" ? "active" : ""}`}
-            onClick={() => setFontSize("large")}
-            title="Large Font Size"
-            aria-label="Large Font Size"
+            className={`font-btn ${fontSize === "normal" ? "active" : ""}`}
+            onClick={() => setFontSize("normal")}
+            title="Default Font Size (A)"
+            aria-label="Default Font Size (A)"
           >
             A
           </button>
           <button
             type="button"
-            className={`font-btn ${fontSize === "xlarge" ? "active" : ""}`}
-            onClick={() => setFontSize("xlarge")}
-            title="Extra Large Font Size"
-            aria-label="Extra Large Font Size"
+            className={`font-btn ${fontSize === "large" || fontSize === "xlarge" ? "active" : ""}`}
+            onClick={() => setFontSize("large")}
+            title="Increase Font Size (A+)"
+            aria-label="Increase Font Size (A+)"
           >
             A+
           </button>

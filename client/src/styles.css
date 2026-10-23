@@ -127,9 +127,23 @@
 .contrast-toggle-btn{display:inline-flex;align-items:center;gap:5px;background:#334155;border:0;color:#cbd5e1;padding:4px 9px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer}
 .contrast-toggle-btn.active{background:#f59e0b;color:#0f172a}
 
-/* Font Scaling */
-html[data-font-size="large"]{font-size:112%}
-html[data-font-size="xlarge"]{font-size:125%}
+/* Font Scaling (GIGW / WCAG 2.1 AA Compliance) */
+html[data-font-size="small"] .app-shell{zoom:0.92;transform-origin:top center}
+html[data-font-size="normal"] .app-shell{zoom:1}
+html[data-font-size="large"] .app-shell{zoom:1.14;transform-origin:top center}
+html[data-font-size="xlarge"] .app-shell{zoom:1.26;transform-origin:top center}
+
+html[data-font-size="small"]{font-size:92%}
+html[data-font-size="large"]{font-size:114%}
+html[data-font-size="xlarge"]{font-size:126%}
+
+html[data-font-size="large"] :is(.hero-sub,.result-summary,.step-content p,.doc-content p,.stepper-body p,p){font-size:1.12em!important}
+html[data-font-size="large"] :is(h1,h2,h3,h4){font-size:1.15em!important}
+html[data-font-size="large"] textarea{font-size:16px!important}
+
+html[data-font-size="xlarge"] :is(.hero-sub,.result-summary,.step-content p,.doc-content p,.stepper-body p,p){font-size:1.25em!important}
+html[data-font-size="xlarge"] :is(h1,h2,h3,h4){font-size:1.3em!important}
+html[data-font-size="xlarge"] textarea{font-size:18px!important}
 
 /* High Contrast Theme (WCAG 2.1 AAA Compliant) */
 .high-contrast body{background:#000!important;color:#fff!important}
