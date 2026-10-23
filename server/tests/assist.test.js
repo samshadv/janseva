@@ -12,7 +12,7 @@ vi.mock("../src/config.js", () => ({
     PORT: 5001,
     NODE_ENV: "test",
     GEMINI_API_KEY: "mock-valid-key",
-    GEMINI_MODEL: "gemini-2.5-flash",
+    GEMINI_MODEL: "gemini-3.5-flash",
     CLIENT_ORIGIN: "http://localhost:5173",
     isApiKeyConfigured: true,
   },

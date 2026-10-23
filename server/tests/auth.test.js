@@ -1,5 +1,22 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import request from "supertest";
+
+vi.mock("../src/services/gemini.js", () => ({
+  getAssistance: vi.fn().mockResolvedValue({
+    summary: "Mock summary",
+    serviceCategory: "General",
+    likelyIntent: "Farmer Insurance",
+    confidence: "high",
+    steps: [{ title: "Step 1", detail: "Detail" }],
+    documents: [],
+    questions: [],
+    officialSources: [],
+    cautions: [],
+    disclaimer: "Mock disclaimer",
+    groundedSchemes: [],
+  }),
+}));
+
 import { createApp } from "../src/app.js";
 
 describe("Phase 2 Authentication & Protected Routes", () => {

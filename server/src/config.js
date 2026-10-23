@@ -5,7 +5,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(5001),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   GEMINI_API_KEY: z.string().optional().default(""),
-  GEMINI_MODEL: z.string().default("gemini-2.5-flash"),
+  GEMINI_MODEL: z.string().default("gemini-3.5-flash"),
   CLIENT_ORIGIN: z.string().default("http://localhost:5173"),
   SUPABASE_URL: z.string().url().or(z.literal("")).optional().default(""),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional().default(""),

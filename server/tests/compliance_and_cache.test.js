@@ -1,5 +1,22 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import request from "supertest";
+
+vi.mock("../src/services/gemini.js", () => ({
+  getAssistance: vi.fn().mockResolvedValue({
+    summary: "Mock summary",
+    serviceCategory: "Social Security",
+    likelyIntent: "Pension help",
+    confidence: "high",
+    steps: [{ title: "Step 1", detail: "Detail" }],
+    documents: [],
+    questions: [],
+    officialSources: [],
+    cautions: [],
+    disclaimer: "Mock disclaimer",
+    groundedSchemes: [],
+  }),
+}));
+
 import { createApp } from "../src/app.js";
 import { redactPII, containsSensitivePII } from "../src/services/piiService.js";
 import { getCachedResponse, setCachedResponse } from "../src/services/cacheService.js";
