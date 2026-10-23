@@ -4,6 +4,7 @@ import { assistRouter } from "./assist.js";
 import { authRouter } from "./auth.js";
 import { conversationsRouter } from "./conversations.js";
 import { schemesRouter } from "./schemes.js";
+import { metricsRouter } from "./metrics.js";
 
 export const apiRouter = Router();
 
@@ -12,3 +13,4 @@ apiRouter.use("/assist", assistRouter);
 apiRouter.use("/", authRouter);
 apiRouter.use("/conversations", conversationsRouter);
 apiRouter.use("/schemes", schemesRouter);
+apiRouter.use("/metrics", metricsRouter);

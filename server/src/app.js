@@ -8,6 +8,7 @@ import { requestId } from "./middleware/requestId.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { apiRouter } from "./routes/index.js";
+import { metricsMiddleware } from "./middleware/metrics.js";
 import { getRedisClient } from "./services/rateLimitStore.js";
 
 export function createApp() {
@@ -33,6 +34,7 @@ export function createApp() {
   app.use(express.json({ limit: "1mb" }));
   app.use(requestId);
   app.use(requestLogger);
+  app.use(metricsMiddleware);
 
   const redis = getRedisClient();
 
