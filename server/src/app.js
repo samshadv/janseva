@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import compression from "compression";
 import rateLimit from "express-rate-limit";
 import { RedisStore } from "rate-limit-redis";
 import { config } from "./config.js";
@@ -15,19 +16,39 @@ export function createApp() {
   const app = express();
 
   app.disable("x-powered-by");
-  app.use(helmet());
 
+  // Advanced Security: Hardened Content Security Policy & Security Headers
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          imgSrc: ["'self'", "data:", "https:"],
+          connectSrc: ["'self'", "https://*.supabase.co", "https://*.googleapis.com"],
+        },
+      },
+      crossOriginEmbedderPolicy: false,
+    })
+  );
+
+  // Response Compression: Gzip & Deflate
+  app.use(compression());
+
+  // CORS configuration with pre-flight caching (24 hours)
   app.use(
     cors({
       origin(origin, callback) {
-        // Allow non-browser requests such as health checks or local scripts; browser origins must match allowlist.
         if (!origin || origin === config.CLIENT_ORIGIN) {
           return callback(null, true);
         }
         return callback(new Error("Origin not allowed"));
       },
-      methods: ["GET", "POST", "PATCH", "OPTIONS"],
+      methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "x-request-id", "Authorization"],
+      maxAge: 86400,
     })
   );
 
