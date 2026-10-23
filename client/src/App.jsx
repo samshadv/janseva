@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ArrowRight, ArrowUpRight, BadgeCheck, BookOpen, Check, ChevronDown,
   CircleHelp, ClipboardCheck, FileText, Globe2, Landmark, LoaderCircle,
   MapPin, Menu, MessageCircle, Search, ShieldCheck, Sparkles, UploadCloud,
   X, Copy, CheckCircle2, AlertTriangle, User, History, Zap, Lock,
-  Printer, PhoneCall
+  Printer, PhoneCall, Mic, MicOff
 } from "lucide-react";
 import { useAuth } from "./contexts/AuthContext";
 import { AuthModal } from "./components/AuthModal";
@@ -15,8 +15,17 @@ import { EligibilityCalculator } from "./components/EligibilityCalculator";
 import { AccessibilityBar } from "./components/AccessibilityBar";
 import { ConsentBanner } from "./components/ConsentBanner";
 import { PrivacyModal } from "./components/PrivacyModal";
+import { InteractivePlan } from "./components/InteractivePlan";
 import { detectClientPII } from "./lib/piiMasker";
 import { SUPPORTED_LANGUAGES } from "./lib/languages";
+
+const QUICK_PILLS = [
+  { icon: "🎓", label: "Scholarships", query: "I am a college student. How can I apply for post matric scholarship and prepare documents?" },
+  { icon: "🌾", label: "Farmer Support (PM-Kisan)", query: "How can a farmer apply for PM-Kisan 6,000 yearly income support and complete e-KYC?" },
+  { icon: "🏥", label: "Ayushman Card", query: "How to check eligibility and make an Ayushman Bharat 5 lakh cashless health card?" },
+  { icon: "🪪", label: "Voter ID / Ration", query: "What is the procedure to apply for a new voter ID card online and verify documents?" },
+  { icon: "🏠", label: "PMAY Housing", query: "How do I check if my family qualifies for Pradhan Mantri Awas Yojana Gramin house assistance?" },
+];
 
 const examples = [
   { icon: "🎓", title: "Scholarships", text: "I'm a college student. How can I find scholarships and prepare my documents?" },
@@ -85,6 +94,8 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
 
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
@@ -105,6 +116,59 @@ export default function App() {
     setMessage(val);
     const warning = detectClientPII(val);
     setPiiWarning(warning);
+  }
+
+  function toggleSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setError("Voice dictation is not supported in this browser. Please use Chrome, Edge, or Safari.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = language === "Hindi" ? "hi-IN" : "en-IN";
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setAnnouncement("Listening for citizen inquiry. Speak your question now.");
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map((res) => res[0].transcript)
+          .join("");
+        handleMessageChange(transcript);
+      };
+
+      recognition.onerror = () => {
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        setAnnouncement("Voice input completed.");
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch {
+      setIsListening(false);
+    }
+  }
+
+  function handleAskFollowUp(questionText) {
+    const followUpQuery = `${message || "Regarding this public service"} — Please specifically address: ${questionText}`;
+    handleMessageChange(followUpQuery);
+    ask(followUpQuery);
   }
 
   async function ask(prompt = message) {
@@ -250,6 +314,27 @@ export default function App() {
                 </div>
 
                 <div className="composer-card">
+                  {/* Interactive Quick Topics Bar */}
+                  <div className="quick-pills-bar">
+                    <span className="pills-title">Quick Topics:</span>
+                    <div className="pills-scroll">
+                      {QUICK_PILLS.map((pill) => (
+                        <button
+                          key={pill.label}
+                          type="button"
+                          className="quick-pill-btn"
+                          onClick={() => {
+                            handleMessageChange(pill.query);
+                            ask(pill.query);
+                          }}
+                        >
+                          <span className="pill-emoji">{pill.icon}</span>
+                          <span className="pill-text">{pill.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <label htmlFor="question" className="field-label">YOUR QUESTION</label>
                   <textarea
                     id="question"
@@ -267,7 +352,19 @@ export default function App() {
                   )}
 
                   <div className="composer-bottom">
-                    <span>{message.length}/6000 characters · Automatic PII Masking active</span>
+                    <div className="composer-meta">
+                      <button
+                        type="button"
+                        className={`voice-mic-btn ${isListening ? "active-listening" : ""}`}
+                        onClick={toggleSpeechRecognition}
+                        title={isListening ? "Listening... Click to finish" : "Click to speak your question in Hindi or English"}
+                      >
+                        {isListening ? <MicOff size={15} /> : <Mic size={15} />}
+                        <span>{isListening ? "Listening..." : "Speak Question"}</span>
+                        {isListening && <span className="mic-pulse-ring" />}
+                      </button>
+                      <span className="char-count">{message.length}/6000 chars · PII Shield on</span>
+                    </div>
                     <button className="primary-button" disabled={loading || message.trim().length < 8} onClick={() => ask()}>
                       {loading ? <><LoaderCircle className="spin" size={17}/> Working...</> : <>Make my action plan <ArrowRight size={17}/></>}
                     </button>
@@ -281,46 +378,17 @@ export default function App() {
                 {error && <div className="error-banner"><AlertTriangle size={17}/>{error}</div>}
                 {!result && !loading && <div className="examples-area"><div className="examples-title"><span>NEED A STARTING POINT?</span><span>Try an example</span></div><div className="example-list">{examples.map(ex=><button key={ex.title} onClick={() => { setMessage(ex.text); setError(""); }}><span className="mini-emoji">{ex.icon}</span><span>{ex.title}</span><ArrowUpRight size={15}/></button>)}</div></div>}
                 {loading && <div className="loading-card"><div className="loading-orb"><Sparkles size={24}/></div><h3>Making sense of your request...</h3><p>Organizing your question into steps and details to verify.</p><div className="loading-bar"><span/></div></div>}
-                {result && <section className="result-panel">
-                  <div className="result-head">
-                    <div>
-                      <div className="eyebrow"><BadgeCheck size={14}/> YOUR ACTION PLAN</div>
-                      <h2>{result.serviceCategory}</h2>
-                    </div>
-                    <div className="result-actions" style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-                      {result.fromCache && (
-                        <span className="ai-chip" title="Retrieved instantly from verified cache">
-                          <Zap size={13} /> Instant Verified
-                        </span>
-                      )}
-                      <button className="outline-button print-btn" onClick={() => window.print()} title="Print or save A4 action plan">
-                        <Printer size={15}/> Print / Save A4
-                      </button>
-                      <button className="outline-button" onClick={copyPlan}>{copied ? <Check size={15}/> : <Copy size={15}/>} {copied ? "Copied" : "Copy plan"}</button>
-                    </div>
-                  </div>
-                  <p className="result-summary">{result.summary}</p>
-                  
-                  {result.groundedSchemes?.length > 0 && (
-                    <div className="grounded-schemes-strip">
-                      <span className="grounded-strip-title"><ShieldCheck size={14}/> REFERENCED OFFICIAL SCHEMES:</span>
-                      {result.groundedSchemes.map((gs) => (
-                        <span key={gs.code} className="grounded-scheme-chip" title={gs.title}>
-                          🏛️ {gs.title}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="intent-strip"><span>Likely need</span><strong>{result.likelyIntent}</strong><span className={`confidence ${result.confidence}`}>{result.confidence} confidence</span></div>
-                  <div className="result-section"><h3><span className="number-icon">1</span> Your next steps</h3><div className="step-list">{result.steps.map((s,i)=><div className="step-item" key={i}><span className="step-number">{String(i+1).padStart(2,"0")}</span><div><strong>{s.title}</strong><p>{s.detail}</p></div></div>)}</div></div>
-                  {result.documents.length > 0 && <div className="result-section"><h3><span className="number-icon">2</span> Documents to check</h3><p className="section-caption">This is a preparation checklist, not a confirmed official requirement list.</p><div className="document-list">{result.documents.map((d,i)=><div className="document-item" key={i}><FileText size={18}/><div><strong>{d.name}</strong><p>{d.reason}</p><span className="doc-status">{statusLabel(d.requiredStatus)}</span></div></div>)}</div></div>}
-                  {result.questions.length > 0 && <div className="result-section"><h3><span className="number-icon">3</span> A few details may help</h3><ul className="question-list">{result.questions.map((q,i)=><li key={i}>{q}</li>)}</ul></div>}
-                  {result.officialSources.length > 0 && <div className="result-section"><h3><span className="number-icon">4</span> Places to verify</h3><p className="section-caption">Links verified against official government registries before recommendation.</p><div className="source-list">{result.officialSources.map((s,i)=><a key={i} href={s.url} target="_blank" rel="noreferrer noopener"><span className="source-icon"><Globe2 size={17}/></span><span><strong>{s.title} <VerifiedBadge /></strong><small>{s.why}</small><em>{s.url}</em></span><ArrowUpRight size={17}/></a>)}</div></div>}
-                  {result.cautions.length > 0 && <div className="caution-box"><AlertTriangle size={18}/><div><strong>Keep in mind</strong><ul>{result.cautions.map((c,i)=><li key={i}>{c}</li>)}</ul></div></div>}
-                  <div className="disclaimer"><ShieldCheck size={17}/><p>{result.disclaimer}</p></div>
-                  <button className="try-again" onClick={() => { setResult(null); setError(""); }}>Ask another question <ArrowRight size={16}/></button>
-                </section>}
+                
+                {result && (
+                  <InteractivePlan
+                    result={result}
+                    copied={copied}
+                    onCopy={copyPlan}
+                    onPrint={() => window.print()}
+                    onAskFollowUp={handleAskFollowUp}
+                    onReset={() => { setResult(null); setError(""); }}
+                  />
+                )}
               </div>
               <aside className="side-column">
                 <div className="side-card help-card"><div className="side-icon"><MessageCircle size={20}/></div><h3>Small question.<br/>Big difference.</h3><p>You don't need to know the official terminology. Just explain what you're trying to do.</p><div className="side-divider"/><div className="side-stat"><span>01</span><p><b>Describe</b><small>Tell us your situation</small></p></div><div className="side-stat"><span>02</span><p><b>Understand</b><small>Get plain-language guidance</small></p></div><div className="side-stat"><span>03</span><p><b>Take action</b><small>Know what to verify next</small></p></div></div>
