@@ -9,6 +9,9 @@ import { useAuth } from "./contexts/AuthContext";
 import { AuthModal } from "./components/AuthModal";
 import { UserMenu } from "./components/UserMenu";
 import { ConversationPanel } from "./components/ConversationPanel";
+import { VerifiedBadge } from "./components/VerifiedBadge";
+import { EligibilityCalculator } from "./components/EligibilityCalculator";
+import { SUPPORTED_LANGUAGES } from "./lib/languages";
 
 const examples = [
   { icon: "🎓", title: "Scholarships", text: "I'm a college student. How can I find scholarships and prepare my documents?" },
@@ -175,6 +178,14 @@ export default function App() {
       <main>
         {activeTab === "Explore services" ? (
           <section className="explore-page">
+            <EligibilityCalculator
+              states={INDIAN_STATES_AND_UTS}
+              onSelectScheme={(schemeQuery) => {
+                setMessage(schemeQuery);
+                ask(schemeQuery);
+              }}
+            />
+
             <div className="eyebrow"><Landmark size={15}/> SERVICE DIRECTORY</div>
             <h1>Start with what<br/><span>you need.</span></h1>
             <p className="hero-sub">Choose a common topic, or ask in your own words. JanSetu helps you understand the process and what to verify.</p>
@@ -215,7 +226,7 @@ export default function App() {
                   <div className="composer-bottom"><span>{message.length}/6000 characters · Don't include ID numbers or OTPs</span><button className="primary-button" disabled={loading || message.trim().length < 8} onClick={() => ask()}>{loading ? <><LoaderCircle className="spin" size={17}/> Working...</> : <>Make my action plan <ArrowRight size={17}/></>}</button></div>
                   <div className="settings-row">
                     <label><MapPin size={15}/><span>State / UT</span><select value={stateName} onChange={(e) => setStateName(e.target.value)}>{INDIAN_STATES_AND_UTS.map(s=><option key={s}>{s}</option>)}</select><ChevronDown size={13}/></label>
-                    <label><Globe2 size={15}/><span>Language</span><select value={language} onChange={(e) => setLanguage(e.target.value)}>{["English","Hindi","Marathi"].map(s=><option key={s}>{s}</option>)}</select><ChevronDown size={13}/></label>
+                    <label><Globe2 size={15}/><span>Language</span><select value={language} onChange={(e) => setLanguage(e.target.value)}>{SUPPORTED_LANGUAGES.map(l=><option key={l.code} value={l.code}>{l.name} ({l.nativeName})</option>)}</select><ChevronDown size={13}/></label>
                   </div>
                 </div>
                 {error && <div className="error-banner"><AlertTriangle size={17}/>{error}</div>}
@@ -224,13 +235,25 @@ export default function App() {
                 {result && <section className="result-panel">
                   <div className="result-head"><div><div className="eyebrow"><BadgeCheck size={14}/> YOUR ACTION PLAN</div><h2>{result.serviceCategory}</h2></div><button className="outline-button" onClick={copyPlan}>{copied ? <Check size={15}/> : <Copy size={15}/>} {copied ? "Copied" : "Copy plan"}</button></div>
                   <p className="result-summary">{result.summary}</p>
+                  
+                  {result.groundedSchemes?.length > 0 && (
+                    <div className="grounded-schemes-strip">
+                      <span className="grounded-strip-title"><ShieldCheck size={14}/> REFERENCED OFFICIAL SCHEMES:</span>
+                      {result.groundedSchemes.map((gs) => (
+                        <span key={gs.code} className="grounded-scheme-chip" title={gs.title}>
+                          🏛️ {gs.title}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="intent-strip"><span>Likely need</span><strong>{result.likelyIntent}</strong><span className={`confidence ${result.confidence}`}>{result.confidence} confidence</span></div>
                   <div className="result-section"><h3><span className="number-icon">1</span> Your next steps</h3><div className="step-list">{result.steps.map((s,i)=><div className="step-item" key={i}><span className="step-number">{String(i+1).padStart(2,"0")}</span><div><strong>{s.title}</strong><p>{s.detail}</p></div></div>)}</div></div>
                   {result.documents.length > 0 && <div className="result-section"><h3><span className="number-icon">2</span> Documents to check</h3><p className="section-caption">This is a preparation checklist, not a confirmed official requirement list.</p><div className="document-list">{result.documents.map((d,i)=><div className="document-item" key={i}><FileText size={18}/><div><strong>{d.name}</strong><p>{d.reason}</p><span className="doc-status">{statusLabel(d.requiredStatus)}</span></div></div>)}</div></div>}
                   {result.questions.length > 0 && <div className="result-section"><h3><span className="number-icon">3</span> A few details may help</h3><ul className="question-list">{result.questions.map((q,i)=><li key={i}>{q}</li>)}</ul></div>}
-                  {result.officialSources.length > 0 && <div className="result-section"><h3><span className="number-icon">4</span> Places to verify</h3><p className="section-caption">Links suggested by AI; check the domain and current information before sharing details.</p><div className="source-list">{result.officialSources.map((s,i)=><a key={i} href={s.url} target="_blank" rel="noreferrer noopener"><span className="source-icon"><Globe2 size={17}/></span><span><strong>{s.title}</strong><small>{s.why}</small><em>{s.url}</em></span><ArrowUpRight size={17}/></a>)}</div></div>}
+                  {result.officialSources.length > 0 && <div className="result-section"><h3><span className="number-icon">4</span> Places to verify</h3><p className="section-caption">Links verified against official government registries before recommendation.</p><div className="source-list">{result.officialSources.map((s,i)=><a key={i} href={s.url} target="_blank" rel="noreferrer noopener"><span className="source-icon"><Globe2 size={17}/></span><span><strong>{s.title} <VerifiedBadge /></strong><small>{s.why}</small><em>{s.url}</em></span><ArrowUpRight size={17}/></a>)}</div></div>}
                   {result.cautions.length > 0 && <div className="caution-box"><AlertTriangle size={18}/><div><strong>Keep in mind</strong><ul>{result.cautions.map((c,i)=><li key={i}>{c}</li>)}</ul></div></div>}
-                  <div className="disclaimer"><ShieldCheck size={17}/><p>{result.disclaimer} Always confirm current requirements with the relevant department.</p></div>
+                  <div className="disclaimer"><ShieldCheck size={17}/><p>{result.disclaimer}</p></div>
                   <button className="try-again" onClick={() => { setResult(null); setError(""); }}>Ask another question <ArrowRight size={16}/></button>
                 </section>}
               </div>
