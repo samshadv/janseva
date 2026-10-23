@@ -82,8 +82,17 @@ const responseSchema = {
   ],
 };
 
+function withTimeout(promise, ms) {
+  let timer;
+  const timeoutPromise = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Model call timed out after ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+}
+
 function generateSchemeGroundedFallback({ message, state, language, matchedSchemes }) {
-  const top = matchedSchemes[0] || {
+  const topSchemes = (matchedSchemes && matchedSchemes.length > 0) ? matchedSchemes.slice(0, 2) : [];
+  const primary = topSchemes[0] || {
     code: "GENERAL_GUIDANCE",
     title: "National Government Services Portal",
     category: "Public Services",
@@ -98,51 +107,75 @@ function generateSchemeGroundedFallback({ message, state, language, matchedSchem
     ]
   };
 
-  const steps = (top.application_steps || [
-    "Verify eligibility criteria on the official government portal.",
-    "Prepare mandatory documentation and certificates.",
-    "Submit your application online or at the authorized local department office."
-  ]).slice(0, 6).map((step, idx) => ({
+  // Aggregate application steps across top matching schemes
+  const allSteps = [];
+  topSchemes.forEach((s) => {
+    if (s.application_steps) {
+      s.application_steps.forEach((step) => {
+        if (!allSteps.includes(step)) allSteps.push(step);
+      });
+    }
+  });
+
+  const steps = (allSteps.length > 0 ? allSteps : primary.application_steps).slice(0, 6).map((step, idx) => ({
     title: `Step ${idx + 1}: ${step.split(/[:\.]/)[0] || "Action"}`,
     detail: step
   }));
 
-  const documents = (top.required_documents || ["Aadhaar Card", "Bank Account Details", "Proof of Residence"]).slice(0, 6).map((doc) => ({
+  // Aggregate documents across top matching schemes
+  const allDocs = [];
+  topSchemes.forEach((s) => {
+    if (s.required_documents) {
+      s.required_documents.forEach((doc) => {
+        if (!allDocs.includes(doc)) allDocs.push(doc);
+      });
+    }
+  });
+
+  const documents = (allDocs.length > 0 ? allDocs : primary.required_documents).slice(0, 6).map((doc) => ({
     name: doc,
-    reason: `Required by department to verify eligibility and process application for ${top.title}.`,
+    reason: `Required by department to verify eligibility and process application for ${primary.title}.`,
     requiredStatus: "commonly-needed"
   }));
 
-  const officialSources = [
-    {
-      title: top.title,
-      url: top.official_portal || "https://www.india.gov.in",
-      why: `Official government portal for ${top.title} information and applications.`
-    },
-    {
+  // Aggregate official source portals
+  const officialSources = topSchemes.map((s) => ({
+    title: s.title,
+    url: s.official_portal || "https://www.india.gov.in",
+    why: `Official government portal for ${s.title} registration, eligibility criteria, and tracking.`
+  }));
+
+  if (officialSources.length === 0) {
+    officialSources.push({
       title: "National Government Services Portal",
       url: "https://www.india.gov.in",
       why: "Central directory for verified Indian public services and state portals."
-    }
-  ];
+    });
+  }
+
+  const categoryTitle = topSchemes.length > 1
+    ? `${topSchemes[0].title} & ${topSchemes[1].title}`
+    : primary.title;
 
   return {
-    summary: `Verified guidance for ${top.title}. Follow these official procedures and document checklists for ${state}.`,
-    serviceCategory: top.category || "Public Services",
-    likelyIntent: `Inquiry regarding ${top.title} and related citizen services in ${state}`,
+    summary: `Verified guidance prepared for ${primary.category || "Public Services"} in ${state}. Follow these official procedures and document checklists for ${categoryTitle}.`,
+    serviceCategory: primary.category || "Public Services",
+    likelyIntent: `Assistance with ${categoryTitle} in ${state}`,
     confidence: "high",
     steps,
     documents,
     questions: [
-      `Are your Aadhaar, bank passbook, and educational certificates updated with identical names?`,
-      `Do you have an active mobile number linked with your Aadhaar for OTP verification?`
+      `Do you reside in a rural area (Gram Panchayat) or urban municipality?`,
+      `Does your family annual income fall under EWS (below ₹3L), LIG (₹3-6L), or MIG (₹6-18L)?`,
+      `Do you or any immediate family member currently own a pucca house in India?`
     ],
     officialSources,
     cautions: [
-      "Registration on official government portals is completely free. Never pay money to unauthorized agents.",
-      "Never disclose sensitive details such as Aadhaar OTPs, bank passwords, or PINs to anyone."
+      "Government scheme registrations on official portals are completely free. Never pay money to unauthorized agents.",
+      "Never disclose sensitive details such as Aadhaar OTPs, bank passwords, or PINs to anyone.",
+      "Ensure all family members' names on Aadhaar cards match property and income certificates exactly."
     ],
-    disclaimer: "Guidance is compiled from verified government registries. Confirm current dates and submission guidelines directly on the official portal."
+    disclaimer: "Guidance is compiled from verified government registries. Confirm current dates, income cutoffs, and submission guidelines directly on the official portal."
   };
 }
 
@@ -164,8 +197,7 @@ ${message}
   const CANDIDATE_MODELS = [
     config.GEMINI_MODEL,
     "gemini-3.8-flash",
-    "gemini-3.5-flash",
-    "gemini-3.7-flash"
+    "gemini-3.5-flash"
   ].filter((v, i, a) => Boolean(v) && a.indexOf(v) === i);
 
   let raw = null;
@@ -176,17 +208,20 @@ ${message}
 
     for (const modelName of CANDIDATE_MODELS) {
       try {
-        logger.debug({ requestId, model: modelName }, "Calling Gemini API");
-        const result = await ai.models.generateContent({
-          model: modelName,
-          contents: promptContent,
-          config: {
-            systemInstruction,
-            responseMimeType: "application/json",
-            responseSchema,
-            temperature: 0.15,
-          },
-        });
+        logger.debug({ requestId, model: modelName }, "Calling Gemini API with 5s timeout");
+        const result = await withTimeout(
+          ai.models.generateContent({
+            model: modelName,
+            contents: promptContent,
+            config: {
+              systemInstruction,
+              responseMimeType: "application/json",
+              responseSchema,
+              temperature: 0.15,
+            },
+          }),
+          5000
+        );
 
         if (result.text) {
           raw = result.text;
@@ -197,7 +232,7 @@ ${message}
         lastError = err;
         logger.warn(
           { requestId, model: modelName, err: err.message },
-          "Model call failed; evaluating fallback"
+          "Model call failed or timed out; evaluating next option"
         );
       }
     }
@@ -218,9 +253,9 @@ ${message}
     }
   }
 
-  // If Gemini models encountered high demand (503) or rate limits, use deterministic scheme fallback
+  // If Gemini models encountered high demand (503) or rate limits or timed out, use deterministic scheme fallback
   if (!finalPlan) {
-    logger.info({ requestId, lastError: lastError?.message }, "Engaging scheme-grounded deterministic fallback plan");
+    logger.info({ requestId, lastError: lastError?.message }, "Engaging scheme-grounded deterministic fallback plan for instant response");
     finalPlan = generateSchemeGroundedFallback({ message, state, language, matchedSchemes });
   }
 

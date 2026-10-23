@@ -55,6 +55,36 @@
     ]
   },
   {
+    "code": "PM_AWAS_URBAN",
+    "title": "Pradhan Mantri Awas Yojana - Urban 2.0 (PMAY-U)",
+    "ministry_or_dept": "Ministry of Housing and Urban Affairs",
+    "level": "Central",
+    "applicable_states": ["All"],
+    "category": "Housing",
+    "summary": "Interest subsidy and financial assistance up to Rs. 2.5 Lakhs for urban EWS, LIG, and Middle-Income (MIG) families for purchasing, constructing, or enhancing houses.",
+    "eligibility_rules": {
+      "occupations": ["Any", "Salaried", "Self-Employed", "Daily Wage Earner"],
+      "max_income": 1800000,
+      "urban_resident": true,
+      "no_pucca_house": true
+    },
+    "required_documents": [
+      "Aadhaar Cards of all family members",
+      "Income Certificate / Salary Slips / Form 16 / ITR",
+      "Notarized Affidavit confirming no pucca house owned across India",
+      "Bank Account details linked with Aadhaar",
+      "Land title deed or property purchase agreement"
+    ],
+    "official_portal": "https://pmaymis.gov.in",
+    "application_steps": [
+      "Check income category: EWS (up to Rs. 3 Lakh), LIG (Rs. 3-6 Lakh), MIG (Rs. 6-18 Lakh)",
+      "Visit official portal pmaymis.gov.in or your Municipal Corporation / Urban Local Body (ULB)",
+      "Authenticate with Aadhaar and enter family member details and residential address",
+      "Select scheme vertical: Credit Linked Subsidy (CLSS) via your bank, or Beneficiary-Led Construction (BLC)",
+      "Submit application, obtain Application ID, and track physical verification by municipal authorities"
+    ]
+  },
+  {
     "code": "AYUSHMAN_BHARAT",
     "title": "Ayushman Bharat - Pradhan Mantri Jan Arogya Yojana (PM-JAY)",
     "ministry_or_dept": "National Health Authority, Ministry of Health and Family Welfare",
