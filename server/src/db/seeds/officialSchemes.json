@@ -1,0 +1,216 @@
+[
+  {
+    "code": "PM_KISAN",
+    "title": "Pradhan Mantri Kisan Samman Nidhi (PM-KISAN)",
+    "ministry_or_dept": "Ministry of Agriculture and Farmers Welfare",
+    "level": "Central",
+    "applicable_states": ["All"],
+    "category": "Agriculture",
+    "summary": "Income support of Rs. 6,000 per year in three equal installments to all landholding farmer families across India.",
+    "eligibility_rules": {
+      "occupations": ["Farmer", "Agricultural Laborer"],
+      "max_income": 800000,
+      "landholding_required": true
+    },
+    "required_documents": [
+      "Aadhaar Card",
+      "Land Ownership Documents (Khata / Khasra / RoR)",
+      "Bank Account details linked with Aadhaar",
+      "Active Mobile Number"
+    ],
+    "official_portal": "https://pmkisan.gov.in",
+    "application_steps": [
+      "Visit the official PM-KISAN portal (pmkisan.gov.in)",
+      "Click on 'New Farmer Registration' under Farmers Corner",
+      "Enter Aadhaar number and select state to verify records",
+      "Fill in land details and submit with bank IFSC code"
+    ]
+  },
+  {
+    "code": "PM_AWAS_GRAMIN",
+    "title": "Pradhan Mantri Awas Yojana - Gramin (PMAY-G)",
+    "ministry_or_dept": "Ministry of Rural Development",
+    "level": "Central",
+    "applicable_states": ["All"],
+    "category": "Housing",
+    "summary": "Financial assistance of up to Rs. 1.20 lakh (plains) or Rs. 1.30 lakh (hilly/difficult areas) for pucca house construction for rural homeless and kutcha-house dwellers.",
+    "eligibility_rules": {
+      "occupations": ["Any", "Daily Wage Earner", "Farmer"],
+      "max_income": 300000,
+      "houseless_or_kutcha": true
+    },
+    "required_documents": [
+      "Aadhaar Card",
+      "Bank Account linked to Aadhaar",
+      "SECC 2011 / Awaas+ Registration ID",
+      "MGNREGA Job Card Number",
+      "Swachh Bharat Mission (SBM) Toilet verification number"
+    ],
+    "official_portal": "https://pmayg.nic.in",
+    "application_steps": [
+      "Contact the local Gram Panchayat or Block Development Officer (BDO)",
+      "Verification is conducted using the Awaas+ portal database",
+      "Geo-tagging of the existing site is done by the Gram Rozgar Sahayak",
+      "Direct Benefit Transfer (DBT) installments are disbursed in stages directly to the bank account"
+    ]
+  },
+  {
+    "code": "AYUSHMAN_BHARAT",
+    "title": "Ayushman Bharat - Pradhan Mantri Jan Arogya Yojana (PM-JAY)",
+    "ministry_or_dept": "National Health Authority, Ministry of Health and Family Welfare",
+    "level": "Central",
+    "applicable_states": ["All"],
+    "category": "Healthcare",
+    "summary": "Health insurance cover of up to Rs. 5 lakh per family per year for secondary and tertiary hospitalization across empaneled public and private hospitals.",
+    "eligibility_rules": {
+      "occupations": ["Any", "Informal Worker", "Daily Wage Earner", "Small Farmer"],
+      "max_income": 250000,
+      "secc_deprivation_criteria": true
+    },
+    "required_documents": [
+      "Aadhaar Card or Ration Card",
+      "Proof of family identity (Family ID / Ration Card)",
+      "Mobile Number"
+    ],
+    "official_portal": "https://pmjay.gov.in",
+    "application_steps": [
+      "Check eligibility on mera.pmjay.gov.in or call toll-free 14555",
+      "Visit any empaneled hospital or Common Service Centre (CSC)",
+      "Carry Aadhaar and Ration Card for biometric e-KYC",
+      "Receive digital Ayushman Card on the spot"
+    ]
+  },
+  {
+    "code": "NSP_PRE_MATRIC",
+    "title": "National Scholarship Portal - Pre & Post Matric Scholarships",
+    "ministry_or_dept": "Ministry of Social Justice and Empowerment / Ministry of Minority Affairs / Ministry of Tribal Affairs",
+    "level": "Central",
+    "applicable_states": ["All"],
+    "category": "Education",
+    "summary": "Financial support covering tuition fees and maintenance allowance for school and college students from economically weaker sections and reserved categories.",
+    "eligibility_rules": {
+      "min_age": 6,
+      "max_age": 30,
+      "occupations": ["Student"],
+      "max_income": 250000
+    },
+    "required_documents": [
+      "Aadhaar Card or Aadhaar Enrolment Slip",
+      "Income Certificate issued by competent Revenue authority (Tehsildar / SDO)",
+      "Caste / Community Certificate (if applicable)",
+      "Current Academic Marksheet and Bonafide Student Certificate",
+      "Bank Passbook in student's name"
+    ],
+    "official_portal": "https://scholarships.gov.in",
+    "application_steps": [
+      "Register on the National Scholarship Portal (scholarships.gov.in) with OTR (One Time Registration)",
+      "Complete Aadhaar e-KYC using Face Auth or Biometric",
+      "Select applicable scholarship scheme based on caste, class, and family income",
+      "Upload documents and submit; track status via Institute Verification"
+    ]
+  },
+  {
+    "code": "PM_SVANIDHI",
+    "title": "PM Street Vendor's AtmaNirbhar Nidhi (PM SVANidhi)",
+    "ministry_or_dept": "Ministry of Housing and Urban Affairs",
+    "level": "Central",
+    "applicable_states": ["All"],
+    "category": "Social Welfare",
+    "summary": "Collateral-free working capital micro-loans of Rs. 10,000 (1st tranche), Rs. 20,000 (2nd tranche), and Rs. 50,000 (3rd tranche) with 7% interest subsidy for urban street vendors.",
+    "eligibility_rules": {
+      "occupations": ["Street Vendor", "Small Business / Street Vendor"],
+      "urban_vendor": true
+    },
+    "required_documents": [
+      "Aadhaar Card",
+      "Certificate of Vending (CoV) or Letter of Recommendation (LoR) from Urban Local Body (ULB)",
+      "Bank Account Details",
+      "Aadhaar-linked Mobile Number"
+    ],
+    "official_portal": "https://pmsvanidhi.mohua.gov.in",
+    "application_steps": [
+      "Check vending eligibility on pmsvanidhi.mohua.gov.in or contact the local Municipal Corporation / Municipality",
+      "Obtain Letter of Recommendation (LoR) if Certificate of Vending is not held",
+      "Apply online directly or through the nearest Common Service Centre (CSC)",
+      "Lending institution credits loan amount directly to bank account"
+    ]
+  },
+  {
+    "code": "VOTER_ID_REGISTRATION",
+    "title": "Voter ID Registration & Correction (Form 6)",
+    "ministry_or_dept": "Election Commission of India",
+    "level": "Central",
+    "applicable_states": ["All"],
+    "category": "Identity",
+    "summary": "Registration of new electors on attaining 18 years of age, or updating constituency details upon relocation across India.",
+    "eligibility_rules": {
+      "min_age": 18,
+      "indian_citizen": true
+    },
+    "required_documents": [
+      "Proof of Age (Birth Certificate / Aadhaar / PAN / Class 10 Certificate)",
+      "Proof of Residence (Water/Electricity bill / Aadhaar / Ration Card / Bank Passbook)",
+      "Passport size photograph"
+    ],
+    "official_portal": "https://voters.eci.gov.in",
+    "application_steps": [
+      "Open the official ECI Voters portal (voters.eci.gov.in) or Voter Helpline App",
+      "Sign up with mobile number and select Form 6 (New Voter Registration)",
+      "Fill in personal details, assembly constituency, and address",
+      "Upload age and address proofs and submit to generate Reference Tracking Number",
+      "Booth Level Officer (BLO) performs field verification; EPIC card delivered via Speed Post"
+    ]
+  },
+  {
+    "code": "MAHADBT_SCHOLARSHIP",
+    "title": "MahaDBT Post-Matric Scholarship Schemes",
+    "ministry_or_dept": "Government of Maharashtra (Social Justice & Special Assistance)",
+    "level": "State",
+    "applicable_states": ["Maharashtra"],
+    "category": "Education",
+    "summary": "Post-matric scholarship and freeship schemes for SC, ST, VJNT, OBC, and SEBC students studying in recognized colleges and universities in Maharashtra.",
+    "eligibility_rules": {
+      "occupations": ["Student"],
+      "states": ["Maharashtra"],
+      "max_income": 800000
+    },
+    "required_documents": [
+      "Maharashtra Domicile Certificate",
+      "Caste Certificate & Caste Validity Certificate",
+      "Income Certificate issued by Tehsildar",
+      "Class 10 / 12 / Degree Marksheet",
+      "College Admission Fee Receipt & CAP Allotment Letter"
+    ],
+    "official_portal": "https://mahadbt.maharashtra.gov.in",
+    "application_steps": [
+      "Register on mahadbt.maharashtra.gov.in using Aadhaar authentication",
+      "Create profile and fill in personal, address, other, and current course details",
+      "Select department and apply for corresponding Post-Matric Scholarship",
+      "Submit application for college verification and scrutiny"
+    ]
+  },
+  {
+    "code": "DIGILOCKER_CITIZEN",
+    "title": "DigiLocker National Digital Document Wallet",
+    "ministry_or_dept": "Ministry of Electronics and Information Technology (MeitY)",
+    "level": "Central",
+    "applicable_states": ["All"],
+    "category": "Identity",
+    "summary": "Official cloud repository for issued digital documents like Aadhaar, Driving License, Vehicle RC, Marksheets, and Ration Cards having legal parity with original physical documents under Rule 9A of the IT Rules.",
+    "eligibility_rules": {
+      "min_age": 10,
+      "indian_citizen": true
+    },
+    "required_documents": [
+      "Aadhaar Number",
+      "Mobile number linked to Aadhaar for OTP"
+    ],
+    "official_portal": "https://digilocker.gov.in",
+    "application_steps": [
+      "Visit digilocker.gov.in or install the official DigiLocker app",
+      "Click Sign Up and enter Aadhaar number with date of birth",
+      "Verify OTP sent to Aadhaar-registered mobile",
+      "Search for any state or central issuing authority to fetch verified document directly"
+    ]
+  }
+]
