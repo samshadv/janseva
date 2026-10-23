@@ -116,6 +116,57 @@
 .scheme-ask-btn{display:inline-flex;align-items:center;gap:6px;border:0;background:#f2efff;color:#6558d9;padding:8px 14px;border-radius:8px;font-size:11px;font-weight:700;transition:all .15s}
 .scheme-ask-btn:hover{background:#6558d9;color:#fff}
 
+/* Phase 5 — Accessibility Bar & High Contrast */
+.gov-accessibility-strip{background:#1e293b;color:#cbd5e1;padding:4px 6.2%;font-size:11px}
+.accessibility-strip-inner{display:flex;align-items:center;justify-content:flex-end;gap:16px;max-width:1440px;margin:auto}
+.accessibility-label{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:10px;color:#94a3b8}
+.text-size-controls{display:flex;align-items:center;gap:2px;background:#334155;padding:2px;border-radius:6px}
+.font-btn{border:0;background:transparent;color:#94a3b8;font-weight:800;font-size:10px;padding:3px 7px;border-radius:4px;cursor:pointer}
+.font-btn:hover{color:#fff}
+.font-btn.active{background:#6558d9;color:#fff}
+.contrast-toggle-btn{display:inline-flex;align-items:center;gap:5px;background:#334155;border:0;color:#cbd5e1;padding:4px 9px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer}
+.contrast-toggle-btn.active{background:#f59e0b;color:#0f172a}
+
+/* Font Scaling */
+html[data-font-size="large"]{font-size:112%}
+html[data-font-size="xlarge"]{font-size:125%}
+
+/* High Contrast Theme (WCAG 2.1 AAA Compliant) */
+.high-contrast body{background:#000!important;color:#fff!important}
+.high-contrast .app-shell{background:#000!important}
+.high-contrast .topbar,.high-contrast .composer-card,.high-contrast .side-card,.high-contrast .result-panel,.high-contrast .footer,.high-contrast .eligibility-widget,.high-contrast .scheme-match-card{background:#0a0a0a!important;border-color:#fbbf24!important;color:#fff!important}
+.high-contrast h1,.high-contrast h2,.high-contrast h3,.high-contrast strong,.high-contrast b{color:#fbbf24!important}
+.high-contrast .primary-button,.high-contrast .auth-nav-btn{background:#fbbf24!important;color:#000!important;font-weight:900!important}
+.high-contrast a,.high-contrast .brand-accent{color:#38bdf8!important}
+.high-contrast textarea{color:#fff!important;background:#171717!important;border:1px solid #525252!important}
+
+/* DPDP Act 2023 Consent Banner */
+.dpdp-consent-banner{position:fixed;bottom:16px;left:20px;right:20px;max-width:980px;margin:auto;background:rgba(24,36,59,.97);backdrop-filter:blur(8px);border:1px solid #334155;border-radius:14px;padding:16px 20px;color:#fff;z-index:90;box-shadow:0 14px 40px rgba(0,0,0,.35);animation:fadeIn .25s ease-out}
+.dpdp-banner-inner{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.dpdp-banner-content{display:flex;align-items:flex-start;gap:14px}
+.dpdp-icon-badge{background:#6558d9;color:#fff;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+.dpdp-banner-content strong{display:block;font-size:12px;color:#f8fafc;margin-bottom:3px}
+.dpdp-banner-content p{margin:0;font-size:11px;line-height:1.6;color:#94a3b8}
+.dpdp-banner-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.dpdp-learn-btn{border:1px solid #475569;background:transparent;color:#cbd5e1;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600}
+.dpdp-learn-btn:hover{background:#334155;color:#fff}
+.dpdp-accept-btn{padding:9px 15px;font-size:11px}
+
+/* Privacy Modal */
+.privacy-modal-card{max-width:520px}
+.privacy-principles-list{display:flex;flex-direction:column;gap:12px;margin:16px 0 20px}
+.privacy-principle-item{display:flex;align-items:flex-start;gap:11px;background:#f8fafc;padding:12px 14px;border-radius:10px;border:1px solid #e2e8f0}
+.privacy-principle-item strong{display:block;font-size:12px;color:var(--ink)}
+.privacy-principle-item small{display:block;font-size:11px;color:#64748b;margin-top:2px;line-height:1.5}
+.dpdp-actions-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 6px}
+.privacy-action-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:12px;border-radius:10px;font-size:11px;font-weight:700;border:0;cursor:pointer;transition:all .15s}
+.privacy-action-btn.export{background:#f1f5f9;color:#334155;border:1px solid #cbd5e1}
+.privacy-action-btn.export:hover{background:#e2e8f0}
+.privacy-action-btn.delete{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}
+.privacy-action-btn.delete:hover{background:#fca5a5}
+.pii-warning-banner{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#fff8ee;border:1px solid #fde68a;border-radius:8px;color:#92400e;font-size:11px;margin-top:10px}
+
+
 @media(max-width:1000px){.eligibility-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:480px){.eligibility-grid{grid-template-columns:1fr}.eligibility-widget{padding:18px}.scheme-card-header{flex-direction:column;align-items:flex-start}.match-score-badge{align-self:flex-start}}
 

@@ -3,7 +3,7 @@ import {
   ArrowRight, ArrowUpRight, BadgeCheck, BookOpen, Check, ChevronDown,
   CircleHelp, ClipboardCheck, FileText, Globe2, Landmark, LoaderCircle,
   MapPin, Menu, MessageCircle, Search, ShieldCheck, Sparkles, UploadCloud,
-  X, Copy, CheckCircle2, AlertTriangle, User, History
+  X, Copy, CheckCircle2, AlertTriangle, User, History, Zap, Lock
 } from "lucide-react";
 import { useAuth } from "./contexts/AuthContext";
 import { AuthModal } from "./components/AuthModal";
@@ -11,6 +11,10 @@ import { UserMenu } from "./components/UserMenu";
 import { ConversationPanel } from "./components/ConversationPanel";
 import { VerifiedBadge } from "./components/VerifiedBadge";
 import { EligibilityCalculator } from "./components/EligibilityCalculator";
+import { AccessibilityBar } from "./components/AccessibilityBar";
+import { ConsentBanner } from "./components/ConsentBanner";
+import { PrivacyModal } from "./components/PrivacyModal";
+import { detectClientPII } from "./lib/piiMasker";
 import { SUPPORTED_LANGUAGES } from "./lib/languages";
 
 const examples = [
@@ -82,6 +86,8 @@ export default function App() {
 
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [piiWarning, setPiiWarning] = useState(null);
 
   // Sync state & language from citizen profile if available
   useEffect(() => {
@@ -92,6 +98,12 @@ export default function App() {
       setLanguage(profile.preferredLanguage);
     }
   }, [profile]);
+
+  function handleMessageChange(val) {
+    setMessage(val);
+    const warning = detectClientPII(val);
+    setPiiWarning(warning);
+  }
 
   async function ask(prompt = message) {
     if (prompt.trim().length < 8) {
@@ -144,6 +156,8 @@ export default function App() {
   const nav = ["Ask JanSetu", "Explore services", "How it works"];
   return (
     <div className="app-shell">
+      <AccessibilityBar />
+
       <header className="topbar">
         <a className="brand" href="#" onClick={() => { setResult(null); setActiveTab("Ask JanSetu"); }}>
           <span className="brand-mark"><Landmark size={21}/></span>
@@ -219,21 +233,62 @@ export default function App() {
 
             <section className="assistant-layout" id="assistant">
               <div className="assistant-main">
-                <div className="section-heading"><div><div className="eyebrow">LET'S FIGURE IT OUT</div><h2>What do you need help with?</h2><p>Write it as you would explain it to a friend.</p></div><span className="ai-chip"><Sparkles size={14}/> Gemini-powered</span></div>
+                <div className="section-heading">
+                  <div>
+                    <div className="eyebrow">LET'S FIGURE IT OUT</div>
+                    <h2>What do you need help with?</h2>
+                    <p>Write it as you would explain it to a friend.</p>
+                  </div>
+                  <span className="ai-chip"><Sparkles size={14}/> Gemini-powered</span>
+                </div>
+
                 <div className="composer-card">
                   <label htmlFor="question" className="field-label">YOUR QUESTION</label>
-                  <textarea id="question" value={message} onChange={(e) => setMessage(e.target.value)} maxLength={6000} placeholder="Example: I'm a student and I want to apply for a scholarship, but I'm not sure which documents I need..." />
-                  <div className="composer-bottom"><span>{message.length}/6000 characters · Don't include ID numbers or OTPs</span><button className="primary-button" disabled={loading || message.trim().length < 8} onClick={() => ask()}>{loading ? <><LoaderCircle className="spin" size={17}/> Working...</> : <>Make my action plan <ArrowRight size={17}/></>}</button></div>
+                  <textarea
+                    id="question"
+                    value={message}
+                    onChange={(e) => handleMessageChange(e.target.value)}
+                    maxLength={6000}
+                    placeholder="Example: I'm a student and I want to apply for a scholarship, but I'm not sure which documents I need..."
+                  />
+
+                  {piiWarning && (
+                    <div className="pii-warning-banner" role="alert">
+                      <Lock size={15} />
+                      <span>{piiWarning}</span>
+                    </div>
+                  )}
+
+                  <div className="composer-bottom">
+                    <span>{message.length}/6000 characters · Automatic PII Masking active</span>
+                    <button className="primary-button" disabled={loading || message.trim().length < 8} onClick={() => ask()}>
+                      {loading ? <><LoaderCircle className="spin" size={17}/> Working...</> : <>Make my action plan <ArrowRight size={17}/></>}
+                    </button>
+                  </div>
                   <div className="settings-row">
                     <label><MapPin size={15}/><span>State / UT</span><select value={stateName} onChange={(e) => setStateName(e.target.value)}>{INDIAN_STATES_AND_UTS.map(s=><option key={s}>{s}</option>)}</select><ChevronDown size={13}/></label>
                     <label><Globe2 size={15}/><span>Language</span><select value={language} onChange={(e) => setLanguage(e.target.value)}>{SUPPORTED_LANGUAGES.map(l=><option key={l.code} value={l.code}>{l.name} ({l.nativeName})</option>)}</select><ChevronDown size={13}/></label>
                   </div>
                 </div>
+
                 {error && <div className="error-banner"><AlertTriangle size={17}/>{error}</div>}
                 {!result && !loading && <div className="examples-area"><div className="examples-title"><span>NEED A STARTING POINT?</span><span>Try an example</span></div><div className="example-list">{examples.map(ex=><button key={ex.title} onClick={() => { setMessage(ex.text); setError(""); }}><span className="mini-emoji">{ex.icon}</span><span>{ex.title}</span><ArrowUpRight size={15}/></button>)}</div></div>}
                 {loading && <div className="loading-card"><div className="loading-orb"><Sparkles size={24}/></div><h3>Making sense of your request...</h3><p>Organizing your question into steps and details to verify.</p><div className="loading-bar"><span/></div></div>}
                 {result && <section className="result-panel">
-                  <div className="result-head"><div><div className="eyebrow"><BadgeCheck size={14}/> YOUR ACTION PLAN</div><h2>{result.serviceCategory}</h2></div><button className="outline-button" onClick={copyPlan}>{copied ? <Check size={15}/> : <Copy size={15}/>} {copied ? "Copied" : "Copy plan"}</button></div>
+                  <div className="result-head">
+                    <div>
+                      <div className="eyebrow"><BadgeCheck size={14}/> YOUR ACTION PLAN</div>
+                      <h2>{result.serviceCategory}</h2>
+                    </div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      {result.fromCache && (
+                        <span className="ai-chip" title="Retrieved instantly from verified cache">
+                          <Zap size={13} /> Instant Verified
+                        </span>
+                      )}
+                      <button className="outline-button" onClick={copyPlan}>{copied ? <Check size={15}/> : <Copy size={15}/>} {copied ? "Copied" : "Copy plan"}</button>
+                    </div>
+                  </div>
                   <p className="result-summary">{result.summary}</p>
                   
                   {result.groundedSchemes?.length > 0 && (
@@ -266,14 +321,27 @@ export default function App() {
           </>
         )}
       </main>
-      <footer className="footer"><a className="brand footer-brand" href="#"><span className="brand-mark"><Landmark size={18}/></span><span>jansetu<span className="brand-accent"> AI</span></span></a><span>Built for clarity. Designed for public good.</span><span className="footer-right"><ShieldCheck size={14}/> Verify before you apply</span></footer>
+
+      <footer className="footer">
+        <a className="brand footer-brand" href="#"><span className="brand-mark"><Landmark size={18}/></span><span>jansetu<span className="brand-accent"> AI</span></span></a>
+        <button
+          type="button"
+          onClick={() => setShowPrivacyModal(true)}
+          style={{ background: "transparent", border: "0", color: "#64748b", fontSize: "11px", fontWeight: "600", cursor: "pointer", textDecoration: "underline" }}
+        >
+          DPDP Act 2023 · Privacy & Data Rights
+        </button>
+        <span className="footer-right"><ShieldCheck size={14}/> Verify before you apply</span>
+      </footer>
 
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+      {showPrivacyModal && <PrivacyModal onClose={() => setShowPrivacyModal(false)} />}
       <ConversationPanel
         isOpen={showHistoryDrawer}
         onClose={() => setShowHistoryDrawer(false)}
         onSelectConversation={handleSelectHistory}
       />
+      <ConsentBanner onOpenPrivacy={() => setShowPrivacyModal(true)} />
     </div>
   );
 }
