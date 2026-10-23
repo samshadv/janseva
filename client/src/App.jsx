@@ -164,7 +164,6 @@ export default function App() {
     setLoading(true); setError(""); setResult(null); setActiveTab("Ask JanSetu");
     setAnnouncement("Contacting JanSetu guidance engine. Generating structured action plan. Please wait.");
     try {
-      const token = getToken();
       const response = await fetch("/api/assist", {
         method: "POST",
         headers: {
