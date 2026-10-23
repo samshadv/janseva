@@ -9,8 +9,14 @@ import { requestId } from "./middleware/requestId.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { apiRouter } from "./routes/index.js";
+import path from "node:path";
+import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 import { metricsMiddleware } from "./middleware/metrics.js";
 import { getRedisClient } from "./services/rateLimitStore.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const clientDistPath = path.resolve(__dirname, "../../client/dist");
 
 export function createApp() {
   const app = express();
@@ -77,6 +83,14 @@ export function createApp() {
   );
 
   app.use("/api", apiRouter);
+
+  if (fs.existsSync(clientDistPath)) {
+    app.use(express.static(clientDistPath));
+    app.get("*", (req, res, next) => {
+      if (req.path.startsWith("/api")) return next();
+      res.sendFile(path.join(clientDistPath, "index.html"));
+    });
+  }
 
   app.use(errorHandler);
 
