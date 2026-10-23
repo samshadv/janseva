@@ -1,16 +1,61 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowRight, ArrowUpRight, BadgeCheck, BookOpen, Check, ChevronDown,
   CircleHelp, ClipboardCheck, FileText, Globe2, Landmark, LoaderCircle,
   MapPin, Menu, MessageCircle, Search, ShieldCheck, Sparkles, UploadCloud,
-  X, Copy, CheckCircle2, AlertTriangle
+  X, Copy, CheckCircle2, AlertTriangle, User, History
 } from "lucide-react";
+import { useAuth } from "./contexts/AuthContext";
+import { AuthModal } from "./components/AuthModal";
+import { UserMenu } from "./components/UserMenu";
+import { ConversationPanel } from "./components/ConversationPanel";
 
 const examples = [
   { icon: "🎓", title: "Scholarships", text: "I'm a college student. How can I find scholarships and prepare my documents?" },
   { icon: "🪪", title: "Identity documents", text: "I need to apply for a voter ID. Explain the steps and documents to check." },
   { icon: "🏠", title: "Public benefits", text: "How do I find out whether my family may qualify for a housing assistance scheme?" },
   { icon: "📄", title: "Government forms", text: "I have a confusing government form. Help me understand what information it asks for." }
+];
+
+const INDIAN_STATES_AND_UTS = [
+  "Not specified",
+  "Andaman & Nicobar Islands",
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chandigarh",
+  "Chhattisgarh",
+  "Dadra & Nagar Haveli and Daman & Diu",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jammu & Kashmir",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Ladakh",
+  "Lakshadweep",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Puducherry",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Other"
 ];
 
 function statusLabel(status) {
@@ -20,6 +65,8 @@ function statusLabel(status) {
 }
 
 export default function App() {
+  const { user, profile, isAuthenticated, getToken, signOut } = useAuth();
+
   const [message, setMessage] = useState("");
   const [stateName, setStateName] = useState("Maharashtra");
   const [language, setLanguage] = useState("English");
@@ -30,6 +77,19 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
 
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
+
+  // Sync state & language from citizen profile if available
+  useEffect(() => {
+    if (profile?.preferredState && profile.preferredState !== "Not specified") {
+      setStateName(profile.preferredState);
+    }
+    if (profile?.preferredLanguage) {
+      setLanguage(profile.preferredLanguage);
+    }
+  }, [profile]);
+
   async function ask(prompt = message) {
     if (prompt.trim().length < 8) {
       setError("Tell us a little more about the service you need.");
@@ -38,9 +98,13 @@ export default function App() {
     setMessage(prompt);
     setLoading(true); setError(""); setResult(null); setActiveTab("Ask JanSetu");
     try {
+      const token = getToken();
       const response = await fetch("/api/assist", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
         body: JSON.stringify({ message: prompt, state: stateName, language })
       });
       const data = await response.json();
@@ -66,6 +130,14 @@ export default function App() {
     } catch { setError("Clipboard access was blocked by your browser."); }
   }
 
+  function handleSelectHistory({ query, state, language: lang, result: histResult }) {
+    setMessage(query);
+    if (state) setStateName(state);
+    if (lang) setLanguage(lang);
+    setResult(histResult);
+    setActiveTab("Ask JanSetu");
+  }
+
   const nav = ["Ask JanSetu", "Explore services", "How it works"];
   return (
     <div className="app-shell">
@@ -79,6 +151,23 @@ export default function App() {
         </nav>
         <div className="top-actions">
           <span className="privacy-note"><ShieldCheck size={15}/> Privacy-first guidance</span>
+          {isAuthenticated ? (
+            <UserMenu
+              user={user}
+              profile={profile}
+              onSignOut={signOut}
+              onToggleHistory={() => setShowHistoryDrawer(true)}
+            />
+          ) : (
+            <button
+              className="auth-nav-btn"
+              onClick={() => setShowAuthModal(true)}
+              aria-label="Sign In or Register"
+            >
+              <User size={14} />
+              <span>Citizen Login</span>
+            </button>
+          )}
           <button className="menu-button" aria-label="Toggle menu" onClick={() => setMobileMenu(!mobileMenu)}>{mobileMenu ? <X/> : <Menu/>}</button>
         </div>
       </header>
@@ -125,7 +214,7 @@ export default function App() {
                   <textarea id="question" value={message} onChange={(e) => setMessage(e.target.value)} maxLength={6000} placeholder="Example: I'm a student and I want to apply for a scholarship, but I'm not sure which documents I need..." />
                   <div className="composer-bottom"><span>{message.length}/6000 characters · Don't include ID numbers or OTPs</span><button className="primary-button" disabled={loading || message.trim().length < 8} onClick={() => ask()}>{loading ? <><LoaderCircle className="spin" size={17}/> Working...</> : <>Make my action plan <ArrowRight size={17}/></>}</button></div>
                   <div className="settings-row">
-                    <label><MapPin size={15}/><span>State / UT</span><select value={stateName} onChange={(e) => setStateName(e.target.value)}>{["Not specified","Andhra Pradesh","Delhi","Gujarat","Karnataka","Kerala","Maharashtra","Tamil Nadu","Telangana","Uttar Pradesh","West Bengal","Other"].map(s=><option key={s}>{s}</option>)}</select><ChevronDown size={13}/></label>
+                    <label><MapPin size={15}/><span>State / UT</span><select value={stateName} onChange={(e) => setStateName(e.target.value)}>{INDIAN_STATES_AND_UTS.map(s=><option key={s}>{s}</option>)}</select><ChevronDown size={13}/></label>
                     <label><Globe2 size={15}/><span>Language</span><select value={language} onChange={(e) => setLanguage(e.target.value)}>{["English","Hindi","Marathi"].map(s=><option key={s}>{s}</option>)}</select><ChevronDown size={13}/></label>
                   </div>
                 </div>
@@ -155,6 +244,13 @@ export default function App() {
         )}
       </main>
       <footer className="footer"><a className="brand footer-brand" href="#"><span className="brand-mark"><Landmark size={18}/></span><span>jansetu<span className="brand-accent"> AI</span></span></a><span>Built for clarity. Designed for public good.</span><span className="footer-right"><ShieldCheck size={14}/> Verify before you apply</span></footer>
+
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+      <ConversationPanel
+        isOpen={showHistoryDrawer}
+        onClose={() => setShowHistoryDrawer(false)}
+        onSelectConversation={handleSelectHistory}
+      />
     </div>
   );
 }
